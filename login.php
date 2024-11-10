@@ -114,18 +114,19 @@
 
 
     <main class="form-signin w-100 m-auto">
-        <form>
-        
+        <form method="post">
+
             <h1 class="h3 mb-3 fw-normal">Please sign in <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person" viewBox="0 0 16 14">
-  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
-</svg></h1> 
-            
+                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
+                </svg>
+            </h1>
+
             <div class="form-floating">
-                <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+                <input type="email" class="form-control" name="email" id="floatingInput" placeholder="name@example.com">
                 <label for="floatingInput">Email address</label>
             </div>
             <div class="form-floating">
-                <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+                <input type="password" class="form-control" name="password" id="floatingPassword" placeholder="Password">
                 <label for="floatingPassword">Password</label>
             </div>
 
@@ -135,12 +136,18 @@
                     Remember me
                 </label>
             </div>
+            <div class="form-check text-start my-3">
+                <input class="form-check-input" type="checkbox" name="company" value="" id="flexCheckDefault">
+                <label class="form-check-label" for="flexCheckDefault">
+                     Company
+                </label>
+            </div>
             <div class="d-grid gap-2">
-                
-                    <button class="btn btn-primary w-100 py-2" type="submit">Sign in</button>
-                
-                    <button class="btn btn-primary w-100py-2" type="submit">Register</button>  
-                
+
+                <button class="btn btn-primary w-100 py-2" name="login" type="submit">Sign in</button>
+
+                <button class="btn btn-primary w-100 py-2" name="register" type="submit">Register</button>
+
             </div>
             <p class="mt-5 mb-3 text-body-secondary">&copy; 2017–2024</p>
         </form>
@@ -150,3 +157,47 @@
 </body>
 
 </html>
+
+
+
+<?php
+
+$users = array(
+    "admin@gmail.com" => "admin1"
+);
+
+
+if (isset($_POST['login'])) {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    loginAttempt($email, $password);
+}
+
+if (isset($_POST['register'])) {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    registerAttempt($email, $password);
+}
+
+function loginAttempt($email, $password)
+{
+
+    global $users;
+
+    if (array_key_exists($email, $users))
+        if ($password === $users[$email])
+            print("Hello");
+}
+
+function registerAttempt($email, $password)
+{
+    global $users;
+
+    if (array_key_exists($email, $users))
+        return;
+
+    $users[$email] = $password;
+}
+
+
+?>
