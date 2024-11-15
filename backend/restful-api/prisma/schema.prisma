@@ -1,0 +1,171 @@
+datasource db {
+  provider = "postgresql" // Or your preferred database
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Users {
+  user_id       Int             @id @default(autoincrement())
+  Student       Student?
+  Manager       Manager?        @relation("UserManager")
+  Partner       Partner?
+  Company       Company?
+  Consent       Consent[]
+  Notifications Notification[]  @relation("UserNotifications")
+}
+
+model Student {
+  student_id      Int               @id @default(autoincrement())
+  user_id         Int               @unique
+  name            String
+  email           String            @unique
+  password        String
+  birth_date      DateTime
+  address         String?
+  disponibility   String?
+  interests       String?
+  last_access     DateTime
+  skills          Student_Skills[]
+  candidatures    Candidature[]
+  associations    Association_Partner[]
+
+  Users           Users             @relation(fields: [user_id], references: [user_id])
+}
+
+model Manager {
+  manager_id   Int          @id @default(autoincrement())
+  user_id      Int          @unique
+  name         String
+  email        String        @unique
+  password     String
+  last_access  DateTime
+  Notifications Notification[]
+  
+  Users        Users        @relation("UserManager", fields: [user_id], references: [user_id])
+}
+
+model Notification {
+  notification_id Int       @id @default(autoincrement())
+  user_id         Int
+  manager_id      Int
+  message         String
+
+  Users           Users     @relation("UserNotifications", fields: [user_id], references: [user_id])
+  Manager         Manager   @relation(fields: [manager_id], references: [manager_id])
+}
+
+model Skills {
+  skills_id       Int              @id @default(autoincrement())
+  full_description String
+  student_skills  Student_Skills[]
+  opportunity_skills Opportunity_Skills[]
+}
+
+model Student_Skills {
+  student_skills_id Int         @id @default(autoincrement())
+  student_id        Int
+  skills_id         Int
+
+  Student           Student     @relation(fields: [student_id], references: [student_id])
+  Skills            Skills      @relation(fields: [skills_id], references: [skills_id])
+}
+
+model Company {
+  company_id       Int                 @id @default(autoincrement())
+  user_id          Int                 @unique
+  name             String
+  dimension        String?
+  collaborators    Int?
+  field            String?
+  location         String?
+  telephone        String?
+  email            String          @unique
+  password         String
+  description      String?
+  approval_badge   Boolean
+  last_access      DateTime
+  opportunities    Work_Opportunities[]
+
+  Users            Users             @relation(fields: [user_id], references: [user_id])
+}
+
+model Partner {
+  partner_id       Int                 @id @default(autoincrement())
+  user_id          Int                 @unique
+  name             String
+  email            String              @unique
+  password         String
+  telephone        String?
+  last_access      DateTime
+  degrees          Partner_Degree[]
+  associations     Association_Partner[]
+
+  Users            Users              @relation(fields: [user_id], references: [user_id])
+}
+
+model Consent {
+  consent_id     Int          @id @default(autoincrement())
+  user_id        Int          @unique
+  rgpd_consent   Boolean
+  date           DateTime
+  status         String
+
+  Users          Users        @relation(fields: [user_id], references: [user_id])
+}
+
+model Partner_Degree {
+  partner_degree_id Int       @id @default(autoincrement())
+  partner_id        Int
+  degree_name       String
+  university_name   String
+
+  Partner           Partner   @relation(fields: [partner_id], references: [partner_id])
+}
+
+model Work_Opportunities {
+  opportunity_id   Int             @id @default(autoincrement())
+  company_id       Int
+  title            String
+  description      String
+  type             String
+  location         String
+  work_schedule    String
+  contract_type    String
+  date             DateTime
+  candidatures     Candidature[]
+  required_skills  Opportunity_Skills[]
+
+  Company          Company         @relation(fields: [company_id], references: [company_id])
+}
+
+model Opportunity_Skills {
+  opportunity_skills_id Int      @id @default(autoincrement())
+  opportunity_id        Int
+  skills_id             Int
+
+  Work_Opportunities    Work_Opportunities @relation(fields: [opportunity_id], references: [opportunity_id])
+  Skills                Skills             @relation(fields: [skills_id], references: [skills_id])
+}
+
+model Candidature {
+  candidature_id  Int                @id @default(autoincrement())
+  student_id      Int
+  opportunity_id  Int
+  status          String
+  date            DateTime
+
+  Student         Student            @relation(fields: [student_id], references: [student_id])
+  Work_Opportunities Work_Opportunities @relation(fields: [opportunity_id], references: [opportunity_id])
+}
+
+model Association_Partner {
+  association_id  Int          @id @default(autoincrement())
+  partner_id      Int
+  student_id      Int
+
+  Partner         Partner      @relation(fields: [partner_id], references: [partner_id])
+  Student         Student      @relation(fields: [student_id], references: [student_id])
+}
