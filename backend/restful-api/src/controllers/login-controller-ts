@@ -1,13 +1,11 @@
 import { Request, Response } from 'express';
-import * as userService from '../services/user-service';
 import * as loginService from '../services/login-service';
 
-
-export const register = async (req: Request, res: Response) => {
-  const { role, name, email, password} = req.body;
+export const login = async (req: Request, res: Response) => {
+  const { email, password, role } = req.body;
   try {
-    const newUser = await userService.registerUser(role, { name, email, password});
-    res.status(200).json(newUser);
+    const { token, userDetails } = await loginService.loginUser(email, password, role);
+    res.status(200).json({ token, userDetails });
   } catch (err: unknown) {
     if (err instanceof Error) {
       res.status(200).json({ error: err.message });
@@ -16,5 +14,3 @@ export const register = async (req: Request, res: Response) => {
     }
   }
 };
-
-

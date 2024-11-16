@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": "src",  // This tells TypeScript that the base directory is "src"
+    "paths": {
+      "*": ["*"]
+    },
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
     /* Projects */
