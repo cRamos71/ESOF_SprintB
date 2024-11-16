@@ -1,6 +1,6 @@
 import express, { Express, Request, Response, Application } from "express";
 import dotenv from "dotenv";
-import router from "./routes/index";
+import router from "./src/routes/index";
 import cors from "cors";
 dotenv.config();
 

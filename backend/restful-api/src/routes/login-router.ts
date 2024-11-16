@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login } from "controllers/";  // Correct the path here
+import { login } from "controllers/login-controller";  // Correct the path here
 
 
 
