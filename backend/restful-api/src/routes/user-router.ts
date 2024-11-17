@@ -1,12 +1,10 @@
-import { Router } from "express";
-import {
-  register
-} from "../controllers/user-controller";
+import express from 'express';
+import { registerUser } from '../controllers/user-controller'; // Correctly import the register function
 
+const router = express.Router();  // TypeScript will infer the correct type for router
 
-const router: Router = Router();
 
 // User routes
-router.post('/register', register);
+router.post('/register', registerUser);
 
 export default router;

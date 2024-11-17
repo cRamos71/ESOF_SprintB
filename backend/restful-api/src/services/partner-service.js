@@ -9,16 +9,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerUser = void 0;
-const user_factory_1 = require("../factories/user-factory");
-const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { role, email, password, name } = req.body;
-    try {
-        const user = yield user_factory_1.UserFactory.create(role, { email, password, name });
-        res.status(200).json({ success: true, data: user });
-    }
-    catch (error) {
-        res.status(200).json({ success: false, message: error.message });
-    }
+exports.createPartner = void 0;
+const client_1 = require("@prisma/client");
+const prisma = new client_1.PrismaClient();
+const createPartner = (userId, userData, hashedPassword) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.partner.create({
+        data: {
+            user_id: userId,
+            name: userData.name,
+            email: userData.email,
+            password: hashedPassword,
+            last_access: new Date(),
+        },
+    });
 });
-exports.registerUser = registerUser;
+exports.createPartner = createPartner;
