@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 
+
 const RegisterOpportunity = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     category: '',
+    schedule: '',
+    contract: '',
     location: '',
     deadline: '',
   });
@@ -20,22 +23,54 @@ const RegisterOpportunity = () => {
     e.preventDefault();
 
     // Validation
-    if (!formData.title || !formData.description || !formData.category || !formData.location || !formData.deadline) {
+    if (!formData.title || !formData.contract || !formData.description || !formData.category || !formData.location || !formData.category || !formData.schedule || !formData.deadline) {
       setError('Please fill in all fields');
       return;
     }
 
-    // Simulate API call
-    console.log('New Opportunity Registered:', formData);
-    setError('');
-    setSuccess('Opportunity registered successfully!');
+    const url = "http://localhost:8000/api/registeropportunities";
 
-    // Reset form
+    const sending = {
+      token: sessionStorage.getItem("token"),
+      title: formData.title,
+      description: formData.description,
+      category: formData.category,
+      location: formData.location,
+      schedule: formData.schedule,
+      contract: formData.contract,
+      required_skills: "1"
+    }
+
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sending)
+    })
+
+    .then(async (response) => {
+      const data = response.json();
+      console.log(response);
+      if (!response.ok) {
+        throw new Error(`Server Error: ${response.status}`);
+      }
+      return data;
+    })
+
+    .then((data) => {
+      console.log(data);
+
+    })
+
+    .catch((error) => {
+      console.error("Error during registration:", error);
+      setError(error.message || "An unknown error occurred");
+    });
     setFormData({
       title: '',
       description: '',
       category: '',
       location: '',
+      contract: '',
       deadline: '',
     });
   };
@@ -70,7 +105,7 @@ const RegisterOpportunity = () => {
           />
         </div>
         <div style={styles.inputGroup}>
-          <label htmlFor="category">Category:</label>
+          <label htmlFor="category">Type:</label>
           <select
             id="category"
             name="category"
@@ -78,7 +113,7 @@ const RegisterOpportunity = () => {
             onChange={handleChange}
             style={styles.select}
           >
-            <option value="">Select a category</option>
+            <option value="">Select a Type</option>
             <option value="Job">Job</option>
             <option value="Internship">Internship</option>
             <option value="Scholarship">Scholarship</option>
@@ -96,6 +131,34 @@ const RegisterOpportunity = () => {
             style={styles.input}
             placeholder="Enter location"
           />
+        </div>
+        <div style={styles.inputGroup}>
+          <label htmlFor="schedule">Work Schedule:</label>
+          <select
+            id="schedule"
+            name="schedule"
+            value={formData.schedule}
+            onChange={handleChange}
+            style={styles.select}
+          >
+            <option value="">Select a Schedule</option>
+            <option value="nine">9-5</option>
+            <option value="ten">10-6</option>
+          </select>
+        </div>
+        <div style={styles.inputGroup}>
+          <label htmlFor="contract">Contract Type:</label>
+          <select
+            id="contract"
+            name="contract"
+            value={formData.contract}
+            onChange={handleChange}
+            style={styles.select}
+          >
+            <option value="">Select a Contract</option>
+            <option value="Full">Full-Time</option>
+            <option value="Part">Part-Time</option>
+          </select>
         </div>
         <div style={styles.inputGroup}>
           <label htmlFor="deadline">Application Deadline:</label>

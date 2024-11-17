@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc",
     "start": "node index.js",
-    "dev": "nodemon -r ts-node/register ./index.ts"
+    "dev": "nodemon -r ts-node/register ./index.ts",
+    "seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
