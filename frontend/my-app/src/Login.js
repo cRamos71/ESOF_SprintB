@@ -8,7 +8,12 @@ function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const url = "http://localhost:8000/login"
+    if(!role){
+      console.log("no role");
+      return;
+    }
+
+    const url = "http://localhost:8000/api/login";
 
 
     const sending = {
@@ -19,6 +24,7 @@ function Login() {
 
     fetch(url, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(sending),
     })
 
@@ -26,20 +32,21 @@ function Login() {
       
       const data = await response.json();
 
-      if(response.ok){
-        console.log("Response:", data);
-        sessionStorage.setItem("token", data.token)
-        sessionStorage.setItem("role", data.userDetails.role)
+      if(!response.ok){
+        throw new Error(`Server Error: ${response.status}`);
       }else{
-        throw new Error("Login failed!");
+        if(data.token){
+          sessionStorage.setItem("token", data.token);
+          console.log("Login successful", data)
+        }
       }
     })
 
     .catch(error => {
-        console.earror("Error:", error);
+        console.error("Error:", error);
     });
   };
-
+  
   const handleUserTypeChange = (e) => {
     setRole(e.target.value);
     console.log(e.target.value);
