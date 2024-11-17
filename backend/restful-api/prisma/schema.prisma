@@ -20,10 +20,10 @@ model Users {
 model Student {
   student_id      Int               @id @default(autoincrement())
   user_id         Int               @unique
-  name            String
+  name            String?
   email           String            @unique
   password        String
-  birth_date      DateTime
+  birth_date      DateTime?
   address         String?
   disponibility   String?
   interests       String?
@@ -38,7 +38,7 @@ model Student {
 model Manager {
   manager_id   Int          @id @default(autoincrement())
   user_id      Int          @unique
-  name         String
+  name         String?
   email        String        @unique
   password     String
   last_access  DateTime
@@ -51,7 +51,7 @@ model Notification {
   notification_id Int       @id @default(autoincrement())
   user_id         Int
   manager_id      Int
-  message         String
+  message         String?
 
   Users           Users     @relation("UserNotifications", fields: [user_id], references: [user_id])
   Manager         Manager   @relation(fields: [manager_id], references: [manager_id])
@@ -76,7 +76,7 @@ model Student_Skills {
 model Company {
   company_id       Int                 @id @default(autoincrement())
   user_id          Int                 @unique
-  name             String
+  name             String?
   dimension        String?
   collaborators    Int?
   field            String?
@@ -85,7 +85,7 @@ model Company {
   email            String          @unique
   password         String
   description      String?
-  approval_badge   Boolean
+  approval_badge   Boolean?
   last_access      DateTime
   opportunities    Work_Opportunities[]
 
@@ -95,7 +95,7 @@ model Company {
 model Partner {
   partner_id       Int                 @id @default(autoincrement())
   user_id          Int                 @unique
-  name             String
+  name             String?
   email            String              @unique
   password         String
   telephone        String?
