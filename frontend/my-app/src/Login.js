@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { jwtDecode } from 'jwt-decode';
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,7 +37,20 @@ function Login() {
       }else{
         if(data.token){
           sessionStorage.setItem("token", data.token);
-          console.log("Login successful", data)
+          console.log("Login successful", data);
+          try {
+            const decodedToken = jwtDecode(data.token);
+            const role = decodedToken.role;
+
+            if (role) {
+              sessionStorage.setItem('role', role);
+            } else {
+              console.error('Role not found in the token');
+            }
+
+          } catch (error) {
+            console.error('Failed to decode JWT', error);
+          }
         }
       }
     })

@@ -23,7 +23,6 @@ const createCompany = (userId, userData, hashedPassword) => __awaiter(void 0, vo
             approval_badge: userData.approval_badge || false,
         },
     });
-    // Notify managers about the new company
     const managers = yield prisma.manager.findMany();
     for (const manager of managers) {
         yield prisma.notification.create({

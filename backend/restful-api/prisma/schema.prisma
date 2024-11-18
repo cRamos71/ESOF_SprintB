@@ -149,6 +149,8 @@ model Opportunity_Skills {
 
   Work_Opportunities    Work_Opportunities @relation(fields: [opportunity_id], references: [opportunity_id])
   Skills                Skills             @relation(fields: [skills_id], references: [skills_id])
+
+  @@unique([opportunity_id, skills_id])
 }
 
 model Candidature {

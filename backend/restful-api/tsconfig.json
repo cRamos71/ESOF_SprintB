@@ -117,7 +117,8 @@
   },
  "include": [
     "src/**/*",   
-    "index.ts"
+    "index.ts",
+    "types/**/*.d.ts"
   ],
   "exclude": ["node_modules"]                  // Exclude node_modules folder
 }

@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 import workOpportunityService from '../services/job-service';
 import { WorkOpportunityData } from '../types/types';
+import { WorkOpportunity } from '../models/workOpportunity';
+
 
 
 const createWorkOpportunity = async (req: Request, res: Response) => {
   const {
-    company_id,
     title,
     description,
     type,
@@ -14,29 +15,49 @@ const createWorkOpportunity = async (req: Request, res: Response) => {
     contract_type,
     urgency,
     date,
-    skillsRequired
+    required_skills
   } = req.body;
+  
+
+  const userID = req.userId;
 
   try {
-    const newOpportunity = workOpportunityService.createWorkOpportunity(
-      company_id,
+    const newOpportunity = await workOpportunityService.createWorkOpportunity({
+      userID,
       title,
       description,
       type,
       location,
       work_schedule,
       contract_type,
+      date: new Date(date),
       urgency,
-      new Date(date),
-      skillsRequired
+      required_skills,
+    });
+
+     const workOpportunity = new WorkOpportunity(
+      newOpportunity.opportunity_id,
+      newOpportunity.company_id,
+      newOpportunity.title,
+      newOpportunity.description,
+      newOpportunity.type,
+      newOpportunity.location,
+      newOpportunity.work_schedule,
+      newOpportunity.contract_type,
+      newOpportunity.urgency,
+      newOpportunity.date,
+      required_skills
     );
+
+    // Notify interested students
+    await workOpportunity.notifyInterestedStudents();
 
     res.status(200).json(newOpportunity);
   } catch (error) {
+    console.error(error);
     res.status(200).json({ error: error.message });
   }
 };
-
 const getAllWorkOpportunities = async (req: Request, res: Response) => {
   try {
     console.log("Fetching job opportunities...");

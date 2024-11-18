@@ -13,13 +13,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const job_service_1 = __importDefault(require("../services/job-service"));
+const workOpportunity_1 = require("../models/workOpportunity");
 const createWorkOpportunity = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { company_id, title, description, type, location, work_schedule, contract_type, urgency, date, skillsRequired } = req.body;
+    const { title, description, type, location, work_schedule, contract_type, urgency, date, required_skills } = req.body;
+    const userID = req.userId;
     try {
-        const newOpportunity = job_service_1.default.createWorkOpportunity(company_id, title, description, type, location, work_schedule, contract_type, urgency, new Date(date), skillsRequired);
+        const newOpportunity = yield job_service_1.default.createWorkOpportunity({
+            userID,
+            title,
+            description,
+            type,
+            location,
+            work_schedule,
+            contract_type,
+            date: new Date(date),
+            urgency,
+            required_skills,
+        });
+        const workOpportunity = new workOpportunity_1.WorkOpportunity(newOpportunity.opportunity_id, newOpportunity.company_id, newOpportunity.title, newOpportunity.description, newOpportunity.type, newOpportunity.location, newOpportunity.work_schedule, newOpportunity.contract_type, newOpportunity.urgency, newOpportunity.date, required_skills);
+        // Notify interested students
+        yield workOpportunity.notifyInterestedStudents();
         res.status(200).json(newOpportunity);
     }
     catch (error) {
+        console.error(error);
         res.status(200).json({ error: error.message });
     }
 });

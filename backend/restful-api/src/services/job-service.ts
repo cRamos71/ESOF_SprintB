@@ -2,6 +2,9 @@ import { decode, JwtPayload } from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { WorkOpportunity } from '../models/workOpportunity';
 import { Student } from '../models/student';
+import { WorkOpportunityData } from '../types/types';
+import { Request, Response } from 'express';
+
 
 const prisma = new PrismaClient();
 
@@ -11,87 +14,91 @@ interface AuthPayload {
   role: string;
 }
 
-/*
-token: sessionStorage.getItem("token"),
-title: formData.title,
-description: formData.description,
-category: formData.category,
-location: formData.location,
-schedule: formData.schedule,
-*/
 
-/*const createWorkOpportunity = async (data) => {
+
+const createWorkOpportunity = async (data: WorkOpportunityData) => {
   try {
+    const userID = data.userID;
+    console.log(data);
+    // Fetch user with their associated company
+    const user = await prisma.users.findUnique({
+      where: { user_id: userID },
+      include: { Company: true },
+    });
 
-    const decoded = decode(sessionStorage.getItem("token"));
-    
+    if (!user || !user.Company) {
+      throw new Error("Company not found for the provided user");
+    }
+
+    const company_id = user.Company.company_id;
+
+    // Create the new Work Opportunity
     const opportunity = await prisma.work_Opportunities.create({
       data: {
-        company_id: decoded.company_id,
+        Company: { connect: { company_id: company_id } },
         title: data.title,
         description: data.description,
-        type: data.type,
+        type: data.type || null,
         location: data.location,
-        work_schedule: data.schedule,
-        contract_type: data.contract,
-        date: data.date,
-        required_skills: data.required_skills
-      }
+        work_schedule: data.work_schedule,
+        contract_type: data.contract_type,
+        urgency: data.urgency,
+        date: new Date(),
+        required_skills: { connect: [] },
+      },
     });
+
+
+    if (Array.isArray(data.required_skills) && data.required_skills.length > 0) {
+      await prisma.work_Opportunities.update({
+        where: {
+          opportunity_id: opportunity.opportunity_id, 
+        },
+        data: {
+          required_skills: {
+            connect: data.required_skills.map((skillId) => ({
+              opportunity_id_skills_id: {
+                opportunity_id: opportunity.opportunity_id, 
+                skills_id: skillId,
+              },
+            })),
+          },
+        },
+      });
+    }
+
+      // Fetch the students who have the required skills (using a join on student_skills)
+      const studentsWithSkills = await prisma.student_Skills.findMany({
+        where: {
+          skills_id: { in: data.required_skills }, // Get students who have any of the required skills
+        },
+        include: {
+          Student: true, // Include student details
+        },
+      });
+  
+      // Create a WorkOpportunity instance to apply the Observer pattern
+      const workOpportunity = new WorkOpportunity(
+        opportunity.opportunity_id,
+        company_id,
+        opportunity.title,
+        opportunity.description,
+        opportunity.type,
+        opportunity.location,
+        opportunity.work_schedule,
+        opportunity.contract_type,
+        opportunity.urgency,
+        opportunity.date,
+        data.required_skills
+      );
+  
     return opportunity;
+
   } catch (error) {
-    throw new Error('Error creating job opportunity: ' + error.message);
+    console.error(error);
+    throw new Error('Error creating the work opportunity');
   }
-};*/
-
-const students: Student[] = [
-  new Student(1, 'Alice', 'alice@example.com', ['JavaScript', 'React']),
-  new Student(2, 'Bob', 'bob@example.com', ['Java', 'Spring']),
-];
-
-// Mocked list of opportunities
-const opportunities: WorkOpportunity[] = [];
-
-// Service method to create a new work opportunity
-const createWorkOpportunity = (
-  company_id: number,
-  title: string,
-  description: string,
-  type: string | undefined,
-  location: string,
-  work_schedule: string,
-  contract_type: string,
-  urgency: string,
-  date: Date,
-  skillsRequired: string[]
-) => {
-  const opportunity = new WorkOpportunity(
-    opportunities.length + 1,
-    company_id,
-    title,
-    description,
-    type,
-    location,
-    work_schedule,
-    contract_type,
-    urgency,
-    date,
-    skillsRequired
-  );
-
-  // Register all students as observers
-  students.forEach((student) => opportunity.registerObserver(student));
-
-  // Add the opportunity to the list
-  opportunities.push(opportunity);
-
-  // Notify all observers
-  opportunity.notifyObservers();
-
-  return opportunity;
 };
-
-
 const getAllJobOpportunities = async () => {
   try {
     const opportunities = await prisma.work_Opportunities.findMany({

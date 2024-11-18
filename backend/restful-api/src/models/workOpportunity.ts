@@ -1,7 +1,9 @@
-import { Subject } from '../types/observer';
 import { Student } from './student';
+import { PrismaClient } from '@prisma/client';
 
-export class WorkOpportunity implements Subject {
+const prisma = new PrismaClient();
+
+export class WorkOpportunity {
   opportunity_id: number;
   company_id: number;
   title: string;
@@ -12,9 +14,7 @@ export class WorkOpportunity implements Subject {
   contract_type: string;
   urgency: string;
   date: Date;
-  skillsRequired: string[];
-
-  interestedStudents: Student[] = [];
+  skillsRequired: number[]; 
 
   constructor(
     opportunity_id: number,
@@ -27,7 +27,7 @@ export class WorkOpportunity implements Subject {
     contract_type: string,
     urgency: string,
     date: Date,
-    skillsRequired: string[]
+    skillsRequired: number[]
   ) {
     this.opportunity_id = opportunity_id;
     this.company_id = company_id;
@@ -42,26 +42,66 @@ export class WorkOpportunity implements Subject {
     this.skillsRequired = skillsRequired;
   }
 
-  registerObserver(observer: Student): void {
-    this.interestedStudents.push(observer);
-  }
-
-  removeObserver(observer: Student): void {
-    this.interestedStudents = this.interestedStudents.filter(
-      (student) => student.id !== observer.id
-    );
-  }
-
-  notifyObservers(): void {
-    this.interestedStudents.forEach((student) => {
-      if (this.isStudentInterested(student)) {
-        student.update(this); // Notify student if they are interested
+  // Get interested students for this opportunity
+  async getInterestedStudents() {
+    const students = await prisma.student.findMany({
+      where: {
+        skills: {
+          some: {
+            skills_id: {
+              in: this.skillsRequired,
+            }
+          }
+        }
+      },
+      include: {
+        skills: true, // Include the skills relation
       }
+    });
+  
+    return students.map((studentData) => {
+      const skillIds = studentData.skills.map(skill => skill.skills_id); // Extract skill IDs
+      return new Student(
+        studentData.student_id,
+        studentData.user_id,
+        studentData.name,
+        studentData.email,
+        studentData.password,
+        studentData.last_access,
+        studentData.interests,
+        skillIds // Pass skill IDs to the Student constructor
+      );
     });
   }
 
-  private isStudentInterested(student: Student): boolean {
-    // A student is interested if their skills overlap with the required skills
-    return this.skillsRequired.some((skill) => student.interests.includes(skill));
+  // Add skills to this work opportunity
+  async addSkills(skillsIds: number[]) {
+    await prisma.work_Opportunities.update({
+      where: {
+        opportunity_id: this.opportunity_id, 
+      },
+      data: {
+        required_skills: {
+          connect: skillsIds.map((skillId) => ({
+            opportunity_id_skills_id: {
+              opportunity_id: this.opportunity_id, 
+              skills_id: skillId,
+            },
+          })),
+        },
+      },
+    });
   }
+
+
+async notifyInterestedStudents() {
+  const students = await this.getInterestedStudents(); // This now returns Student instances
+
+  students.forEach((student) => {
+    if (Student.isInterestedInOpportunity(student, this.skillsRequired)) {
+      console.log(`Notifying student: ${student.name}`);
+      // Here you can send notifications, emails, etc.
+    }
+  });
+}
 }

@@ -1,11 +1,13 @@
+
 export interface WorkOpportunityData {
-  company_id: number;
+  userID: number;
   title: string;
   description: string;
   type: string;
   location: string;
   work_schedule: string;
   contract_type: string;
-  date: string;
+  date: Date;
+  urgency: string;
   required_skills: number[];
 }
