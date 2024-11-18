@@ -74,24 +74,70 @@ export class WorkOpportunity {
     });
   }
 
-  // Add skills to this work opportunity
-  async addSkills(skillsIds: number[]) {
-    await prisma.work_Opportunities.update({
+// Add skills to this work opportunity
+async addSkills(skillsIds: number[]) {
+  try {
+    // Fetch the work opportunity
+    const opportunity = await prisma.work_Opportunities.findUnique({
       where: {
-        opportunity_id: this.opportunity_id, 
-      },
-      data: {
-        required_skills: {
-          connect: skillsIds.map((skillId) => ({
-            opportunity_id_skills_id: {
-              opportunity_id: this.opportunity_id, 
-              skills_id: skillId,
-            },
-          })),
-        },
+        opportunity_id: this.opportunity_id,
       },
     });
+
+    if (!opportunity) {
+      console.error(`Work opportunity with id ${this.opportunity_id} not found.`);
+      return;
+    }
+
+    const skills = await prisma.skills.findMany({
+      where: {
+        skills_id: { in: skillsIds },
+      },
+    });
+
+    if (skills.length !== skillsIds.length) {
+      console.error("Some skills were not found in the database.");
+      return;
+    }
+
+    const existingConnections = await prisma.opportunity_Skills.findMany({
+      where: {
+        opportunity_id: this.opportunity_id,
+        skills_id: { in: skillsIds },
+      },
+    });
+
+    // Extract the existing opportunity_skills_id to prevent duplicates
+    const existingSkillIds = existingConnections.map(conn => conn.opportunity_skills_id);
+
+    // Filter out the skills that are already connected
+    const newSkills = skillsIds.filter(skillId => !existingSkillIds.includes(skillId));
+
+    // Create new connections for the skills that are not yet connected
+    if (newSkills.length > 0) {
+      const connectData = newSkills.map(skillId => ({
+        opportunity_skills_id: skillId, // Use the primary key `opportunity_skills_id`
+      }));
+
+      await prisma.work_Opportunities.update({
+        where: {
+          opportunity_id: this.opportunity_id,
+        },
+        data: {
+          required_skills: {
+            connect: connectData,
+          },
+        },
+      });
+
+      console.log(`Successfully added new skills to opportunity ${this.opportunity_id}`);
+    } else {
+      console.log("All skills are already connected.");
+    }
+  } catch (error) {
+    console.error("Error adding skills:", error);
   }
+}
 
 
 async notifyInterestedStudents() {
