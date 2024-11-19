@@ -5,43 +5,29 @@ const OpportunityList = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Simulate fetching data from an API
+
+  const token = sessionStorage.getItem("token");
+  const url = "http://localhost:8000/api/work-opportunities";
+
+
   useEffect(() => {
     const fetchOpportunities = async () => {
       try {
-        // Replace with actual API call
-        const mockData = [
-          {
-            id: 1,
-            title: 'Frontend Developer Internship',
-            description: 'Work with React and JavaScript to create amazing user interfaces.',
-            category: 'Internship',
-            location: 'Remote',
-            deadline: '2024-12-01',
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
-          {
-            id: 2,
-            title: 'Scholarship for Computer Science Students',
-            description: 'A fully funded scholarship for students passionate about technology.',
-            category: 'Scholarship',
-            location: 'USA',
-            deadline: '2024-11-30',
-          },
-          {
-            id: 3,
-            title: 'Volunteering at Animal Shelter',
-            description: 'Help care for animals in need and make a difference.',
-            category: 'Volunteering',
-            location: 'Local',
-            deadline: '2024-12-15',
-          },
-        ];
+        });
 
-        // Simulate a delay
-        setTimeout(() => {
-          setOpportunities(mockData);
-          setLoading(false);
-        }, 1000);
+        if (!response.ok) {
+          throw new Error('Failed to fetch opportunities');
+        }
+
+        const data = await response.json();
+        setOpportunities(data);
+        setLoading(false);
       } catch (err) {
         setError('Failed to fetch opportunities');
         setLoading(false);
@@ -69,13 +55,13 @@ const OpportunityList = () => {
               <h3 style={styles.opportunityTitle}>{opportunity.title}</h3>
               <p style={styles.opportunityDescription}>{opportunity.description}</p>
               <p style={styles.opportunityDetails}>
-                <strong>Category:</strong> {opportunity.category}
+                <strong>Urgency:</strong> {opportunity.urgency}
               </p>
               <p style={styles.opportunityDetails}>
                 <strong>Location:</strong> {opportunity.location}
               </p>
               <p style={styles.opportunityDetails}>
-                <strong>Deadline:</strong> {new Date(opportunity.deadline).toLocaleDateString()}
+                <strong>Deadline:</strong> {new Date(opportunity.date).toLocaleDateString()}
               </p>
             </li>
           ))}
@@ -135,8 +121,3 @@ const styles = {
 };
 
 export default OpportunityList;
-
-/*Replace the mockData array with an actual API call to fetch opportunities.
-const response = await fetch('https://your-api.com/opportunities');
-const data = await response.json();
-setOpportunities(data);*/

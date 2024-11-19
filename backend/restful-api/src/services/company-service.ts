@@ -19,7 +19,7 @@ export const createCompany = async (
     },
   });
 
-  // Notify managers about the new company
+
   const managers = await prisma.manager.findMany();
   for (const manager of managers) {
     await prisma.notification.create({

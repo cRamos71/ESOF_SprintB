@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createStudent = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
+const opportunities = [];
 const createStudent = (userId, userData, hashedPassword) => __awaiter(void 0, void 0, void 0, function* () {
     return yield prisma.student.create({
         data: {

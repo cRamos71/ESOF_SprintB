@@ -22,9 +22,9 @@ function App() {
           <Route path="/registeropps" 
           element={sessionStorage.getItem("role") === "company" ? <RegisterOpportunity /> : <Navigate to="/login" />}
         />
-          <Route path= "/filteropps" element={<ListOpps />} />
+          <Route path= "/listopportunities" element={<ListOpps />} />
           <Route path= "/viewcandidatestoopps" element={<OpportunityApplicants />} />
-          <Route path= "/register" element={<Register />} />
+          <Route path= "/filteropportunities" element={<OpportunityFilter />} />
         </Routes>
         
       </>

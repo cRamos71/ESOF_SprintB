@@ -3,7 +3,6 @@ import { registerUser } from '../controllers/user-controller'; // Correctly impo
 
 const router = express.Router();  // TypeScript will infer the correct type for router
 
-
 // User routes
 router.post('/register', registerUser);
 

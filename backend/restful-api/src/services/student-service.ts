@@ -1,7 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { UserData } from '../types/user';
+import { WorkOpportunity } from '../models/workOpportunity'; // Import WorkOpportunity model
 
 const prisma = new PrismaClient();
+
+const opportunities: WorkOpportunity[] = []; 
 
 export const createStudent = async (
   userId: number,
@@ -20,7 +23,7 @@ export const createStudent = async (
       interests: userData.interests || null,
       last_access: new Date(),
       skills: {
-        create: [],
+        create: [], 
       },
     },
   });
