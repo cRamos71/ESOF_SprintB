@@ -27,10 +27,8 @@ const OpportunityList = () => {
 
         const data = await response.json();
         setOpportunities(data);
-        setLoading(false);
       } catch (err) {
-        setError('Failed to fetch opportunities');
-        setLoading(false);
+        console.log(err);
       }
     };
 

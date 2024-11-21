@@ -151,15 +151,18 @@ const RegisterOpportunity = () => {
         </div>
         <div style={styles.inputGroup}>
           <label htmlFor="location">Location:</label>
-          <input
-            type="text"
+          <select
             id="location"
             name="location"
             value={formData.location}
             onChange={handleChange}
-            style={styles.input}
-            placeholder="Enter location"
-          />
+            style={styles.select}
+          >
+            <option value="">Select a location</option>
+            <option value="Remote">Remote</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="Office">Office</option>
+          </select>
         </div>
         <div style={styles.inputGroup}>
           <label htmlFor="schedule">Work Schedule:</label>
@@ -171,8 +174,8 @@ const RegisterOpportunity = () => {
             style={styles.select}
           >
             <option value="">Select a Schedule</option>
-            <option value="nine">9-5</option>
-            <option value="ten">10-6</option>
+            <option value="Nine">9-5</option>
+            <option value="Ten">10-6</option>
           </select>
         </div>
         <div style={styles.inputGroup}>
