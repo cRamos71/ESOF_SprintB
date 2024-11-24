@@ -66,8 +66,19 @@ const filterWorkOpportunities = (req, res) => __awaiter(void 0, void 0, void 0, 
         res.status(200).json({ error: error.message });
     }
 });
+const opportunitiesCandidatures = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userId = req.userId;
+        const opportunities = yield job_service_1.default.getAppliedStudents(userId);
+        res.status(200).json(opportunities);
+    }
+    catch (error) {
+        res.status(200).json({ error: error.message });
+    }
+});
 exports.default = {
     getAllWorkOpportunities,
     createWorkOpportunity,
-    filterWorkOpportunities
+    filterWorkOpportunities,
+    opportunitiesCandidatures
 };

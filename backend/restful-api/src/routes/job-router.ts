@@ -11,5 +11,7 @@ router.get('/work-opportunities', verifyToken,workOpportunityController.getAllWo
 
 router.post('/opportunities/filter', verifyToken, workOpportunityController.filterWorkOpportunities);
 
+router.get('/candidatures', verifyToken, workOpportunityController.opportunitiesCandidatures);
+
 
 export default router;

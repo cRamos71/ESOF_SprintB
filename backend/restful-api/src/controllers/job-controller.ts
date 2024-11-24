@@ -5,6 +5,7 @@ import { WorkOpportunity } from '../models/workOpportunity';
 
 
 
+
 const createWorkOpportunity = async (req: Request, res: Response) => {
   const {
     title,
@@ -86,9 +87,20 @@ const filterWorkOpportunities = async (req: Request, res: Response) => {
   }
 };
 
+const opportunitiesCandidatures = async (req: Request, res: Response) => {
+  try{
+    const userId = req.userId;
+    const opportunities = await workOpportunityService.getAppliedStudents(userId);
+    res.status(200).json(opportunities);
+  }catch(error){
+    res.status(200).json({error: error.message});
+  }
+};
+
 
 export default {
   getAllWorkOpportunities,
   createWorkOpportunity,
-  filterWorkOpportunities
+  filterWorkOpportunities,
+  opportunitiesCandidatures
 };

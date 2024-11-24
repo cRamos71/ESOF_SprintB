@@ -103,8 +103,42 @@ const filterOpportunities = (_a) => __awaiter(void 0, [_a], void 0, function* ({
     });
     return opportunities;
 });
+const getAppliedStudents = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const company = yield prisma.company.findUnique({
+            where: { user_id: userId },
+        });
+        if (!company)
+            throw new Error("Company not found for the provided user");
+        const opportunities = yield prisma.work_Opportunities.findMany({
+            where: { company_id: company.company_id }
+        });
+        const candidaturesWithStudents = yield Promise.all(opportunities.map((opportunity) => prisma.candidature.findMany({
+            where: { opportunity_id: opportunity.opportunity_id },
+            include: {
+                Student: true, // Include the student data for each candidature
+                Work_Opportunities: { select: { title: true } }, // Include opportunity title
+            },
+        })));
+        // Flatten the result into a single array and extract relevant details
+        const allStudents = candidaturesWithStudents.flat().map((candidature) => ({
+            candidature_id: candidature.candidature_id,
+            student_id: candidature.Student.student_id,
+            student_name: candidature.Student.name,
+            opportunity_id: candidature.opportunity_id,
+            opportunity_title: candidature.Work_Opportunities.title,
+            date: candidature.date,
+        }));
+        return allStudents;
+    }
+    catch (error) {
+        console.error("Error fetching students for company opportunities:", error);
+        throw new Error("Unable to fetch students");
+    }
+});
 exports.default = {
     createWorkOpportunity,
     getAllJobOpportunities,
-    filterOpportunities
+    filterOpportunities,
+    getAppliedStudents
 };
