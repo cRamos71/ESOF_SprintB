@@ -55,7 +55,7 @@ const CandidaturesPage = () => {
             <tr>
               <th style={{ border: "1px solid #ddd", padding: "8px" }}>Candidature ID</th>
               <th style={{ border: "1px solid #ddd", padding: "8px" }}>Student Name</th> {/* Updated */}
-              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Student ID</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Email</th>
               <th style={{ border: "1px solid #ddd", padding: "8px" }}>Opportunity Title</th> {/* Updated */}
               <th style={{ border: "1px solid #ddd", padding: "8px" }}>Status</th>
               <th style={{ border: "1px solid #ddd", padding: "8px" }}>Date</th>
@@ -66,7 +66,7 @@ const CandidaturesPage = () => {
               <tr key={candidature.candidature_id}>
                 <td style={{ border: "1px solid #ddd", padding: "8px" }}>{candidature.candidature_id}</td>
                 <td style={{ border: "1px solid #ddd", padding: "8px" }}>{candidature.student_name}</td> {/* Updated */}
-                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{candidature.student_id}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{candidature.email}</td>
                 <td style={{ border: "1px solid #ddd", padding: "8px" }}>{candidature.opportunity_title}</td> {/* Updated */}
                 <td style={{ border: "1px solid #ddd", padding: "8px" }}>{candidature.status}</td>
                 <td style={{ border: "1px solid #ddd", padding: "8px" }}>

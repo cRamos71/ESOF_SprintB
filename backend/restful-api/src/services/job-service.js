@@ -123,7 +123,7 @@ const getAppliedStudents = (userId) => __awaiter(void 0, void 0, void 0, functio
         // Flatten the result into a single array and extract relevant details
         const allStudents = candidaturesWithStudents.flat().map((candidature) => ({
             candidature_id: candidature.candidature_id,
-            student_id: candidature.Student.student_id,
+            email: candidature.Student.email,
             student_name: candidature.Student.name,
             opportunity_id: candidature.opportunity_id,
             opportunity_title: candidature.Work_Opportunities.title,
