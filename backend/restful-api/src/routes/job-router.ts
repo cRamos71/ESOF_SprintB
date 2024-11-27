@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import workOpportunityController from '../controllers/job-controller';
-import { verifyToken } from '../../middleware/auth-middleware'; // Import the token verification middleware
+import { verifyToken } from '../../middleware/auth-middleware'; 
 
 
 const router: Router = Router();

@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { UserData } from '../types/user';
 
-const prisma = new PrismaClient();
+export const prisma = new PrismaClient();
 
 export const createManager = async (
   userId: number,
