@@ -42,7 +42,7 @@ const createWorkOpportunity = async (data: WorkOpportunityData) => {
         location: data.location,
         work_schedule: data.work_schedule,
         contract_type: data.contract_type,
-        urgency: data.urgency,
+        urgency: data.urgency || null,
         date: new Date(),
         required_skills: { connect: [] },
       },
