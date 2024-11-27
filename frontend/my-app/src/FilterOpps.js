@@ -5,47 +5,52 @@ const OpportunityFilter = () => {
   const [filters, setFilters] = useState({
     urgency: '',
     location: '',
-    workMode: '',
+    work_schedule: '',
   });
 
-  // Simulated data fetching
-  useEffect(() => {
-    const fetchOpportunities = async () => {
-      const mockData = [
-        {
-          id: 1,
-          title: 'Frontend Developer Internship',
-          description: 'React internship opportunity.',
-          location: 'Remote',
-          workMode: 'Remote',
-          urgency: 'High',
-        },
-        {
-          id: 2,
-          title: 'Scholarship for CS Students',
-          description: 'Fully funded scholarship.',
-          location: 'USA',
-          workMode: 'On-Site',
-          urgency: 'Medium',
-        },
-        {
-          id: 3,
-          title: 'Volunteering at Animal Shelter',
-          description: 'Help animals in need.',
-          location: 'Local',
-          workMode: 'On-Site',
-          urgency: 'Low',
-        },
-      ];
-      setOpportunities(mockData);
-    };
+  const token = sessionStorage.getItem('token');
+  const url = 'http://localhost:8000/api/opportunities/filter';
 
+  const fetchOpportunities = async () => {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(filters), // Directly use filters for the body
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch opportunities');
+      }
+
+      const data = await response.json();
+
+      // Validate API response as an array
+      if (Array.isArray(data)) {
+        setOpportunities(data);
+      } else {
+        console.error('API response is not an array:', data);
+        setOpportunities([]);
+      }
+    } catch (err) {
+      console.error('Error fetching opportunities:', err.message);
+    }
+  };
+
+  // Trigger API call when filters change
+  useEffect(() => {
     fetchOpportunities();
-  }, []);
+  }, [filters]); // Dependency ensures refetch on filter changes
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters({ ...filters, [name]: value });
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
   };
 
   const filteredOpportunities = opportunities.filter((opportunity) => {
@@ -55,11 +60,11 @@ const OpportunityFilter = () => {
     const matchesLocation = filters.location
       ? opportunity.location.toLowerCase().includes(filters.location.toLowerCase())
       : true;
-    const matchesWorkMode = filters.workMode
-      ? opportunity.workMode === filters.workMode
+    const matchesWorkSchedule = filters.work_schedule
+      ? opportunity.work_schedule === filters.work_schedule
       : true;
 
-    return matchesUrgency && matchesLocation && matchesWorkMode;
+    return matchesUrgency && matchesLocation && matchesWorkSchedule;
   });
 
   return (
@@ -85,28 +90,31 @@ const OpportunityFilter = () => {
         </div>
         <div style={styles.filterGroup}>
           <label htmlFor="location" style={styles.label}>Location:</label>
-          <input
-            type="text"
+          <select
             id="location"
             name="location"
             value={filters.location}
-            onChange={handleFilterChange}
-            style={styles.input}
-            placeholder="Enter location"
-          />
-        </div>
-        <div style={styles.filterGroup}>
-          <label htmlFor="workMode" style={styles.label}>Work Mode:</label>
-          <select
-            id="workMode"
-            name="workMode"
-            value={filters.workMode}
             onChange={handleFilterChange}
             style={styles.select}
           >
             <option value="">All</option>
             <option value="Remote">Remote</option>
-            <option value="On-Site">On-Site</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="Office">Office</option>
+          </select>
+        </div>
+        <div style={styles.filterGroup}>
+          <label htmlFor="work_schedule" style={styles.label}>Work Schedule:</label>
+          <select
+            id="work_schedule"
+            name="work_schedule"
+            value={filters.work_schedule}
+            onChange={handleFilterChange}
+            style={styles.select}
+          >
+            <option value="">All</option>
+            <option value="Nine">9-5</option>
+            <option value="Ten">10-6</option>
           </select>
         </div>
       </div>
@@ -122,7 +130,7 @@ const OpportunityFilter = () => {
                 <strong>Location:</strong> {opportunity.location}
               </p>
               <p>
-                <strong>Work Mode:</strong> {opportunity.workMode}
+                <strong>Work Schedule:</strong> {opportunity.work_schedule}
               </p>
               <p>
                 <strong>Urgency:</strong> {opportunity.urgency}
@@ -169,12 +177,6 @@ const styles = {
     borderRadius: '4px',
     border: '1px solid #ccc',
   },
-  input: {
-    width: '100%',
-    padding: '8px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
-  },
   opportunities: {
     marginTop: '20px',
   },
@@ -196,8 +198,3 @@ const styles = {
 };
 
 export default OpportunityFilter;
-
-/*Replace the mock data with an actual API call in fetchOpportunities if needed:
-const response = await fetch('https://your-api.com/opportunities');
-const data = await response.json();
-setOpportunities(data);*/
