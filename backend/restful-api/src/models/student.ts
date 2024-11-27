@@ -12,9 +12,9 @@ export class Student {
   birth_date: Date;
   address: string;
   disponibility: string;
-  interests: string; // Interests will be a CSV string
+  interests: string; 
   last_access: Date;
-  skills: number[]; // Array of skill IDs from the Student_Skills relation
+  skills: number[]; 
 
   constructor(
     student_id: number,
@@ -24,7 +24,7 @@ export class Student {
     password: string,
     last_access: Date,
     interests: string,
-    skills: number[] // Skills are now passed as an array of skill IDs
+    skills: number[] 
   ) {
     this.student_id = student_id;
     this.user_id = user_id;
@@ -33,7 +33,7 @@ export class Student {
     this.password = password;
     this.last_access = last_access;
     this.interests = interests;
-    this.skills = skills; // Assign skills to the class property
+    this.skills = skills; 
   }
 
   static isInterestedInOpportunity(student: Student, requiredSkills: number[]): boolean {
