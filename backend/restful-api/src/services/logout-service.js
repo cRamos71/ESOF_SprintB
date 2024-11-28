@@ -9,18 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createManager = exports.prisma = void 0;
-const client_1 = require("@prisma/client");
-exports.prisma = new client_1.PrismaClient();
-const createManager = (userId, userData, hashedPassword) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield exports.prisma.manager.create({
-        data: {
-            user_id: userId,
-            name: userData.name || "",
-            email: userData.email,
-            password: hashedPassword,
-            last_access: new Date(),
-        },
-    });
+exports.logoutUser = void 0;
+const logoutUser = () => __awaiter(void 0, void 0, void 0, function* () {
+    return { message: 'User logged out successfully.' };
 });
-exports.createManager = createManager;
+exports.logoutUser = logoutUser;

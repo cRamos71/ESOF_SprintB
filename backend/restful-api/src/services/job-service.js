@@ -9,8 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createWorkOpportunity = void 0;
 const client_1 = require("@prisma/client");
-const workOpportunity_1 = require("../models/workOpportunity");
+const workopportunity_observer_1 = require("../models/workopportunity-observer");
+const student_1 = require("../models/student");
 const prisma = new client_1.PrismaClient();
 const createWorkOpportunity = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -35,7 +37,7 @@ const createWorkOpportunity = (data) => __awaiter(void 0, void 0, void 0, functi
                 location: data.location,
                 work_schedule: data.work_schedule,
                 contract_type: data.contract_type,
-                urgency: data.urgency,
+                urgency: data.urgency || null,
                 date: new Date(),
                 required_skills: { connect: [] },
             },
@@ -60,14 +62,21 @@ const createWorkOpportunity = (data) => __awaiter(void 0, void 0, void 0, functi
         // Fetch the students who have the required skills (using a join on student_skills)
         const studentsWithSkills = yield prisma.student_Skills.findMany({
             where: {
-                skills_id: { in: data.required_skills }, // Get students who have any of the required skills
+                skills_id: { in: data.required_skills },
             },
             include: {
-                Student: true, // Include student details
+                Student: true,
             },
         });
         // Create a WorkOpportunity instance to apply the Observer pattern
-        const workOpportunity = new workOpportunity_1.WorkOpportunity(opportunity.opportunity_id, company_id, opportunity.title, opportunity.description, opportunity.type, opportunity.location, opportunity.work_schedule, opportunity.contract_type, opportunity.urgency, opportunity.date, data.required_skills);
+        const workOpportunity = new workopportunity_observer_1.WorkOpportunity(opportunity.opportunity_id, company_id, opportunity.title, opportunity.description, opportunity.type, opportunity.location, opportunity.work_schedule, opportunity.contract_type, opportunity.urgency, opportunity.date, data.required_skills);
+        // Register all students who have the required skills as observers
+        studentsWithSkills.forEach(studentSkill => {
+            // (student_id: number, user_id: number, name: string, email: string, password: string, last_access: Date, interests: string, skills: number[])
+            const student = new student_1.Student(studentSkill.Student.student_id, studentSkill.Student.user_id, studentSkill.Student.name, studentSkill.Student.email, studentSkill.Student.password, studentSkill.Student.last_access, studentSkill.Student.interests, data.required_skills);
+            workOpportunity.addObserver(student);
+        });
+        workOpportunity.createOrUpdateOpportunity();
         return opportunity;
     }
     catch (error) {
@@ -75,6 +84,7 @@ const createWorkOpportunity = (data) => __awaiter(void 0, void 0, void 0, functi
         throw new Error('Error creating the work opportunity');
     }
 });
+exports.createWorkOpportunity = createWorkOpportunity;
 const getAllJobOpportunities = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const opportunities = yield prisma.work_Opportunities.findMany({
@@ -137,7 +147,7 @@ const getAppliedStudents = (userId) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.default = {
-    createWorkOpportunity,
+    createWorkOpportunity: exports.createWorkOpportunity,
     getAllJobOpportunities,
     filterOpportunities,
     getAppliedStudents

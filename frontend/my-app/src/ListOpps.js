@@ -26,7 +26,9 @@ const OpportunityList = () => {
         }
 
         const data = await response.json();
+        console.log(data);
         setOpportunities(data);
+        setLoading(false);
       } catch (err) {
         console.log(err);
       }

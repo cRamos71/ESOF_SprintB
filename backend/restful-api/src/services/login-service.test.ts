@@ -18,8 +18,9 @@ jest.mock('@prisma/client', () => {
 jest.mock('bcryptjs');
 jest.mock('jsonwebtoken');
 
+const prisma = new PrismaClient();
+
 describe('loginUser', () => {
-  const mockPrisma = new PrismaClient();
 
   const mockUserDetails = {
     user_id: 1,
@@ -40,8 +41,8 @@ describe('loginUser', () => {
   // Test Description 
   it('should log in a student successfully', async () => {
     // create mock objects simulating resolved promise / database responses
-    (mockPrisma.student.findUnique as jest.Mock).mockResolvedValue(mockUserDetails);
-    (mockPrisma.users.findUnique as jest.Mock).mockResolvedValue(mockUser);
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue(mockUserDetails);
+    (prisma.users.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
     // always true to only test the code logic
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
@@ -53,8 +54,8 @@ describe('loginUser', () => {
 
     // Assertions
     // check method is executing the correct query
-    expect(mockPrisma.student.findUnique).toHaveBeenCalledWith({ where: { email: 'test@example.com' } });
-    expect(mockPrisma.users.findUnique).toHaveBeenCalledWith({ where: { user_id: mockUserDetails.user_id } });
+    expect(prisma.student.findUnique).toHaveBeenCalledWith({ where: { email: 'test@example.com' } });
+    expect(prisma.users.findUnique).toHaveBeenCalledWith({ where: { user_id: mockUserDetails.user_id } });
     expect(bcrypt.compare).toHaveBeenCalledWith('password123', mockUserDetails.password);
     expect(jwt.sign).toHaveBeenCalledWith(
       { userId: mockUser.user_id, email: mockUserDetails.email, role: 'student' },

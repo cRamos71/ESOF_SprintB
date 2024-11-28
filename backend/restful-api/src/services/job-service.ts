@@ -1,6 +1,6 @@
 import { decode, JwtPayload } from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
-import { WorkOpportunity } from '../models/workOpportunity';
+import { WorkOpportunity } from '../models/workopportunity-observer';
 import { Student } from '../models/student';
 import { WorkOpportunityData } from '../types/types';
 import { Request, Response } from 'express';
@@ -16,7 +16,7 @@ interface AuthPayload {
 
 
 
-const createWorkOpportunity = async (data: WorkOpportunityData) => {
+export const createWorkOpportunity = async (data: WorkOpportunityData) => {
   try {
     const userID = data.userID;
     console.log(data);
@@ -48,7 +48,6 @@ const createWorkOpportunity = async (data: WorkOpportunityData) => {
       },
     });
 
-
     if (Array.isArray(data.required_skills) && data.required_skills.length > 0) {
       await prisma.work_Opportunities.update({
         where: {
@@ -58,7 +57,7 @@ const createWorkOpportunity = async (data: WorkOpportunityData) => {
           required_skills: {
             connect: data.required_skills.map((skillId) => ({
               opportunity_id_skills_id: {
-                opportunity_id: opportunity.opportunity_id, 
+                opportunity_id: opportunity.opportunity_id,
                 skills_id: skillId,
               },
             })),
@@ -67,31 +66,49 @@ const createWorkOpportunity = async (data: WorkOpportunityData) => {
       });
     }
 
-      // Fetch the students who have the required skills (using a join on student_skills)
-      const studentsWithSkills = await prisma.student_Skills.findMany({
-        where: {
-          skills_id: { in: data.required_skills }, // Get students who have any of the required skills
-        },
-        include: {
-          Student: true, // Include student details
-        },
-      });
-  
-      // Create a WorkOpportunity instance to apply the Observer pattern
-      const workOpportunity = new WorkOpportunity(
-        opportunity.opportunity_id,
-        company_id,
-        opportunity.title,
-        opportunity.description,
-        opportunity.type,
-        opportunity.location,
-        opportunity.work_schedule,
-        opportunity.contract_type,
-        opportunity.urgency,
-        opportunity.date,
+    // Fetch the students who have the required skills (using a join on student_skills)
+    const studentsWithSkills = await prisma.student_Skills.findMany({
+      where: {
+        skills_id: { in: data.required_skills },
+      },
+      include: {
+        Student: true,
+      },
+    });
+
+    // Create a WorkOpportunity instance to apply the Observer pattern
+    const workOpportunity = new WorkOpportunity(
+      opportunity.opportunity_id,
+      company_id,
+      opportunity.title,
+      opportunity.description,
+      opportunity.type,
+      opportunity.location,
+      opportunity.work_schedule,
+      opportunity.contract_type,
+      opportunity.urgency,
+      opportunity.date,
+      data.required_skills
+    );
+
+    // Register all students who have the required skills as observers
+    studentsWithSkills.forEach(studentSkill => {
+      // (student_id: number, user_id: number, name: string, email: string, password: string, last_access: Date, interests: string, skills: number[])
+      const student = new Student(
+        studentSkill.Student.student_id,
+        studentSkill.Student.user_id,
+        studentSkill.Student.name,
+        studentSkill.Student.email,
+        studentSkill.Student.password,
+        studentSkill.Student.last_access,
+        studentSkill.Student.interests,
         data.required_skills
       );
-  
+      workOpportunity.addObserver(student);
+    });
+
+    workOpportunity.createOrUpdateOpportunity();
+
     return opportunity;
 
   } catch (error) {
@@ -99,6 +116,7 @@ const createWorkOpportunity = async (data: WorkOpportunityData) => {
     throw new Error('Error creating the work opportunity');
   }
 };
+
 const getAllJobOpportunities = async () => {
   try {
     const opportunities = await prisma.work_Opportunities.findMany({

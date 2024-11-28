@@ -51,6 +51,11 @@ function Login() {
           } catch (error) {
             console.error('Failed to decode JWT', error);
           }
+
+          if(role.match('company')){
+            window.location.href = '/registeropps';
+          }else{window.location.href = '/listopportunities';}
+        
         }
       }
     })

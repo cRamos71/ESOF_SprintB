@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import routerRegister from './src/routes/user-router';  // Import the router
 import routerLogin from './src/routes/login-router';
 import routerJob from './src/routes/job-router';
+import routerLogout from './src/routes/logout-router';
 import cors from 'cors';
 import { error } from 'console';
 
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use('/api', routerRegister); 
 app.use('/api', routerLogin);
 app.use('/api', routerJob);
+app.use('/api', routerLogout)
 
 app.listen(port, () => {
   console.log(`Server running on port: ${port}`);

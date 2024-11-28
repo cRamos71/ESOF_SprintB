@@ -1,10 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { UserData } from '../types/user';
-import { WorkOpportunity } from '../models/workOpportunity'; // Import WorkOpportunity model
 
 const prisma = new PrismaClient();
-
-const opportunities: WorkOpportunity[] = []; 
 
 export const createStudent = async (
   userId: number,

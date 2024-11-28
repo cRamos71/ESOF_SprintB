@@ -36,17 +36,13 @@ const loginUser = (email, password, role) => __awaiter(void 0, void 0, void 0, f
     }
     if (!userDetails)
         throw new Error('Invalid credentials');
-    // Step 2: Validate the password
     const isPasswordValid = yield bcryptjs_1.default.compare(password, userDetails.password);
     if (!isPasswordValid)
         throw new Error('Invalid credentials');
-    // Step 3: Get the user_id from the Users table for token generation
     const user = yield prisma.users.findUnique({ where: { user_id: userDetails.user_id } });
     if (!user)
         throw new Error('User not found in the users table');
-    // Step 4: Generate JWT token
     const token = jsonwebtoken_1.default.sign({ userId: user.user_id, email: userDetails.email, role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    // Return the token and user details
     return { token, userDetails };
 });
 exports.loginUser = loginUser;
