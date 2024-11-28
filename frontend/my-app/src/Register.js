@@ -18,58 +18,59 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+  
     if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
       setError('Please fill in all fields');
       return;
     }
+  
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
-    const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const url = "http://localhost:8000/register"
-
-
+  
+    const url = "http://localhost:8000/api/register";
+  
     const sending = {
-        role: role,
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-    }
-
+      role: role,
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+    };
+  
     fetch(url, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(sending),
     })
-
-    .then(async (response) => {
-      
-      const data = await response.json();
-
-      if(response.ok){
-        console.log("Response:", data);
-      }else{
-        throw new Error("Login failed!");
-      }
-    })
-    .catch(error => {
-        console.earror("Error:", error);
-    });
+      .then(async (response) => {
+        const data = response.json();
+        if (!response.ok) {
+          throw new Error(`Server Error: ${response.status}`);
+        }
+        return data;
+      })
+      .then((data) => {
+        console.log(data);
+        if (data.success) {
+          console.log("User registered successfully", data.data);
+          setFormData({
+            name: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
+          });
+          setError('');
+        } else {
+          setError(data.message || "Registration failed");
+        }
+      })
+      .catch((error) => {
+        console.error("Error during registration:", error);
+        setError(error.message || "An unknown error occurred");
+      });
   };
-
-    setFormData({
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    });
-    
-  };
-
+  
   const handleUserTypeChange = (e) => {
     setRole(e.target.value);
     console.log(e.target.value);

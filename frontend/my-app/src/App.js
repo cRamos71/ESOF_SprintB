@@ -6,11 +6,22 @@ import Home from "./Home";
 import RegisterOpportunity from './RegisterOpps';
 import ListOpps from './ListOpps';
 import OpportunityFilter from './FilterOpps';
-import OpportunityApplicants from './ViewCandidatesToOpps';
+import CandidaturesPage from './Cadidatures';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { jwtDecode } from "jwt-decode";
 
 
 function App() {
+
+  const token = sessionStorage.getItem("token");
+  var decoded;
+  var userRole;
+  if(token){
+    decoded = jwtDecode(token);
+    userRole = decoded.role;
+  }
+
+
   return (
       <>
         
@@ -19,12 +30,15 @@ function App() {
           <Route path= "/home" element={<Home />} />
           <Route path= "/login"  element={<Login />} />
           <Route path= "/register" element={<Register />} />
-          <Route path="/registeropps" 
-          element={sessionStorage.getItem("role") === "company" ? <RegisterOpportunity /> : <Navigate to="/login" />}
-        />
-          <Route path= "/filteropps" element={<ListOpps />} />
-          <Route path= "/viewcandidatestoopps" element={<OpportunityApplicants />} />
-          <Route path= "/register" element={<Register />} />
+          <Route path= "/logout"  element={sessionStorage.getItem("token")? <Logout /> : <Navigate to="/login" />} />
+          <Route path="/registeropportinity" 
+          element={token && userRole === "company" ? <RegisterOpportunity /> : <Navigate to="/listopportunities" />}
+          />
+          <Route path= "/listopportunities" element={token ? <ListOpps /> : <Navigate to = "/login" />} />
+          <Route path= "/filteropportunities" element={token ? <OpportunityFilter /> : <Navigate to = "/login" />} />
+          <Route path= "/candidatures"
+          element = {token && userRole === "company" ? <CandidaturesPage /> : <Navigate to="/login" />}
+          />
         </Routes>
         
       </>

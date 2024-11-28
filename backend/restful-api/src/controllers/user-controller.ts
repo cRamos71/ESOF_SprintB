@@ -1,22 +1,13 @@
 import { Request, Response } from 'express';
-import * as userService from './user.service';
+import { UserFactory } from '../factories/user-factory';
 
-export const register = async (req: Request, res: Response) => {
-  const { role, name, email, password, ...otherData } = req.body;
-  try {
-    const newUser = await userService.registerUser(role, { name, email, password, ...otherData });
-    res.status(201).json(newUser);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
+export const registerUser = async (req: Request, res: Response) => {
+  const { role, email, password, name } = req.body;
 
-export const login = async (req: Request, res: Response) => {
-  const { email, password, role } = req.body;
   try {
-    const { token, userDetails } = await userService.loginUser(email, password, role);
-    res.status(200).json({ token, userDetails });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+    const user = await UserFactory.create(role, { email, password, name });
+    res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    res.status(200).json({ success: false, message: error.message });
   }
 };

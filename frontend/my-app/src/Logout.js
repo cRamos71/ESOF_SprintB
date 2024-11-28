@@ -1,11 +1,40 @@
 import React from 'react';
 
 const Logout = ({ onLogout }) => {
-  const handleLogout = () => {
-    // Perform logout actions (e.g., clearing local storage, cookies, etc.)
-    localStorage.removeItem('authToken'); // Example: Clear auth token
-    console.log('User logged out');
-    onLogout(); // Notify parent component or handle further actions
+
+  const url =  "http://localhost:8000/api/logout";
+
+  const token = sessionStorage.getItem('token');
+
+  const handleLogout = async () => {
+    
+    try{
+      const response = await fetch(url, {
+        method: 'POST',
+        headers:{
+          
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if(!response.ok){
+        console.error('Error during logout:', data);
+        throw new Error('Error fetching the logout');
+      }
+  
+      alert('Sucess');
+      console.log('Logout:', data);
+    
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('role');
+
+      window.location.href = '/login';
+
+    }catch(error){
+      console.error('Error during logout:', error);
+    }
   };
 
   return (
